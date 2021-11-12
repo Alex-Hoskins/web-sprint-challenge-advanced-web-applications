@@ -1,6 +1,11 @@
-
+import axiosWithAuth from "../utils/axiosWithAuth";
+import React, { useState } from "react";
 
 const articleService = ()=> {
+    return axiosWithAuth()
+            .get('/articles')
+            
+           
 }
 
 export default articleService;

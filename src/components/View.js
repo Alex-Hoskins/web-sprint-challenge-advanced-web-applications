@@ -1,18 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
+import articleService from '../services/articleServices';
+import axiosWithAuth from '../utils/axiosWithAuth';
 import Article from './Article';
 import EditForm from './EditForm';
+import { useHistory } from 'react-router';
 
 const View = (props) => {
     const [articles, setArticles] = useState([]);
     const [editing, setEditing] = useState(false);
     const [editId, setEditId] = useState();
+    useEffect(()=>{
+        articleService()
+            .then(resp=>{
+                setArticles(resp.data)
+            })
+            .catch(err=> {
+                console.log(err);
+            })
+    },[ArticleContainer])
 
     const handleDelete = (id) => {
+            axiosWithAuth().delete(`http://localhost:5000/api/articles/${id}`)
+            .then(resp=>{
+                setArticles(resp.data);
+            })
+            .catch(err=> {
+                console.log(err);
+            })
     }
 
     const handleEdit = (article) => {
+        axiosWithAuth().put(`http://localhost:5000/api/articles/${article.id}`,article)
+            .then(resp=>{
+                console.log(resp.data)
+                setArticles(resp.data)
+                setEditing(false)
+            })
     }
 
     const handleEditSelect = (id)=> {
@@ -28,7 +52,7 @@ const View = (props) => {
         <HeaderContainer>View Articles</HeaderContainer>
         <ContentContainer flexDirection="row">
             <ArticleContainer>
-                {
+                {   articles &&
                     articles.map(article => {
                         return <ArticleDivider key={article.id}>
                             <Article key={article.id} article={article} handleDelete={handleDelete} handleEditSelect={handleEditSelect}/>

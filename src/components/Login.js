@@ -1,12 +1,62 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { useHistory } from 'react-router';
 
-const Login = () => {
-    
+const initialError=''
+const Login = (props) => {
+    const [state, setState] = useState({
+        username:'',
+        password:''
+    });
+    const [error, setError]=useState(initialError);
+    const { push }=useHistory();
+
+    const handleChange = e => {
+        setState({
+            ...state,
+            [e.target.name]:e.target.value
+        });
+    }
+
+    const login = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:5000/api/login', state)
+          .then(resp=> {
+            localStorage.setItem('token', resp.data.token);
+            push('/view');
+          })
+          .catch(err=> {
+            {err && setError(err.response.data.error)}
+          })
+      };
     return(<ComponentContainer>
         <ModalContainer>
-            <h1>Welcome to Blogger Pro</h1>
-            <h2>Please enter your account information.</h2>
+        <form action="" className="form" onSubmit={login}>
+            <h2>I am Login</h2>
+            <div>
+                <label>Username:</label><br/>
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    value={state.username}
+                    onChange={handleChange}
+                />
+            </div>
+            <div>
+                <label>Password:</label><br/>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    value={state.password}
+                    onChange={handleChange}
+                />
+            </div>
+            <button id='submit'>Log in</button>
+            {error && <p id='error'>{error}</p>}
+        </form>
         </ModalContainer>
     </ComponentContainer>);
 }
